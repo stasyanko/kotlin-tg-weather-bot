@@ -5,4 +5,4 @@
 
 ## Testing the bot locally with ngrok
 
-```./ngrok http 8080```
+```ngrok http 8080```

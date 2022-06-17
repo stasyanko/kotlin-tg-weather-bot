@@ -18,7 +18,6 @@ fun Application.configureRouting(dotenv: Dotenv) {
     routing {
         post ("/") {
             try {
-                //TODO: !!!!!!!!! use https://github.com/kotlin-telegram-bot/kotlin-telegram-bot
                 val jsonData = JSONObject(call.receiveText())
                 val message = jsonData.get("message") as JSONObject
                 val chat = message.get("chat") as JSONObject
@@ -29,10 +28,10 @@ fun Application.configureRouting(dotenv: Dotenv) {
 
                 client.request(dotenv.get("TG_BOT_BASE_URL") + "sendMessage") {
                     method = HttpMethod.Post
-                    expectSuccess=false
+                    expectSuccess=true
+                    contentType(ContentType.Application.Json)
                     setBody(res.toString())
                 }
-                println(res)
                 call.respondText("")
             } catch (e: Exception) {
                 println(e.message)
