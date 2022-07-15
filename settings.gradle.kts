@@ -1,1 +1,1 @@
-rootProject.name = "ktor-telegram-weather-bot"
+rootProject.name = "kotlin-tg-weather-bot"
