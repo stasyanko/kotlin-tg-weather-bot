@@ -1,4 +1,4 @@
-package com.example
+package com.weather_bot
 
 import io.ktor.server.routing.*
 import io.ktor.http.*
@@ -9,7 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlin.test.*
 import io.ktor.server.testing.*
-import com.example.plugins.*
+import com.weather_bot.plugins.*
 
 class ApplicationTest {
     @Test
