@@ -46,12 +46,9 @@ fun main() {
                     println("LOCATION")
                 }
                 //TODO: uncomment this to compile successfully
-                StepEnum.TIME -> {
-                    println("TIME")
-                }
-                null -> {
-
-                }
+//                StepEnum.TIME -> {
+//                    println("TIME")
+//                }
             }
         }
 
