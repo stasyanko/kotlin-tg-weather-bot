@@ -46,12 +46,13 @@ fun main() {
                     println("LOCATION")
                 }
                 //TODO: uncomment this to compile successfully
-//                StepEnum.TIME -> {
-//                    println("TIME")
-//                }
-            }
+                StepEnum.TIME -> {
+                    println("TIME")
+                }
+                null -> {
 
-            bot.execute(SendMessage(chatId, "Hello!"))
+                }
+            }
         }
 
         UpdatesListener.CONFIRMED_UPDATES_ALL
