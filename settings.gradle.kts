@@ -1,1 +1,1 @@
-rootProject.name = "ktor-invoice-generator"
+rootProject.name = "ktor-telegram-weather-bot"
