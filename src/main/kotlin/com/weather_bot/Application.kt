@@ -27,7 +27,7 @@ fun main() {
     bot.setUpdatesListener { updates: List<Update?>? ->
         updates?.forEach { it ->
             //without null checks it does not compile
-            val chatId: Long? = it?.message()?.chat()?.id()
+            val chatId: Long? = it?.message()?.chat().id()
             //let expr allows to do this without if/else
             val chatStep = chatSteps[chatId].let { stepNumber ->
                 if(stepNumber === null) {
