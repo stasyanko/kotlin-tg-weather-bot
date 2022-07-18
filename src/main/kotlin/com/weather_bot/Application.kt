@@ -3,7 +3,6 @@ package com.weather_bot
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Update
-import com.pengrad.telegrambot.request.SendMessage
 import io.github.cdimascio.dotenv.Dotenv
 import java.util.*
 
