@@ -18,11 +18,7 @@ enum class StepEnum(val value: stepNumber) {
 fun main() {
     val dotenv = Dotenv.load()
     val bot = TelegramBot(dotenv["TG_BOT_TOKEN"])
-
-    val chatSteps = Collections.synchronizedMap(mutableMapOf<
-        chatId,
-        StepEnum
-    >())
+    val chatSteps = Collections.synchronizedMap(mutableMapOf<chatId, StepEnum>())
 
     bot.setUpdatesListener { updates: List<Update?>? ->
         updates?.forEach { it ->
