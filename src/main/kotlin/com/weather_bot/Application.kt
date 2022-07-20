@@ -3,6 +3,7 @@ package com.weather_bot
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Update
+import com.weather_bot.database.PgDatabase
 import io.github.cdimascio.dotenv.Dotenv
 import java.util.*
 
@@ -15,10 +16,16 @@ enum class StepEnum(val value: stepNumber) {
     TIME(3),
 }
 
+private const val INIT_SCRIPT = "database/init-pg-data.sql"
+
 fun main() {
     val dotenv = Dotenv.load()
     val bot = TelegramBot(dotenv["TG_BOT_TOKEN"])
     val chatSteps = Collections.synchronizedMap(mutableMapOf<chatId, StepEnum>())
+
+    val pgDatabase = PgDatabase()
+    val db = pgDatabase.connect(dotenv["DB_USER"], dotenv["DB_PASS"])
+    pgDatabase.execSqlScript(INIT_SCRIPT, db)
 
     bot.setUpdatesListener { updates: List<Update?>? ->
         updates?.forEach { it ->

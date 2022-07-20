@@ -23,6 +23,12 @@ repositories {
 }
 
 dependencies {
+    val ktormVersion = "3.5.0"
+
+    implementation("org.ktorm:ktorm-core:${ktormVersion}")
+    implementation("org.ktorm:ktorm-support-postgresql:${ktormVersion}")
+    implementation("org.postgresql:postgresql:9.3-1100-jdbc4")
+
     implementation("com.github.pengrad:java-telegram-bot-api:6.1.0")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
