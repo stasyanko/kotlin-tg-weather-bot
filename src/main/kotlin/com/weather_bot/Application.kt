@@ -79,7 +79,7 @@ private fun upsertUser(
 ): User {
     var user = db.users.find {
         // a nice approach for DSLs with "eq" expression
-        (it.username eq userId)
+        it.username eq userId
     }
 
     if(user == null) {
