@@ -47,6 +47,12 @@ fun main() {
                 chatSteps[chatId]
             }
 
+            upsertUser(
+                db = db,
+                userId = chatId.toString(),
+                createdOn = Instant.now()
+            )
+
             when(chatStep) {
                 StepEnum.WEATHER_ACTIONS -> {
                     println("WEATHER_ACTIONS")
@@ -70,12 +76,12 @@ fun main() {
 private fun upsertUser(
     db: Database,
     userId: String,
-    weatherActionId: Int?,
-    lat: BigDecimal?,
-    lng: BigDecimal?,
-    notifyAtHour: Int?,
-    lastNotified: Instant?,
-    createdOn: Instant?
+    weatherActionId: Int? = null,
+    lat: BigDecimal? = null,
+    lng: BigDecimal? = null,
+    notifyAtHour: Int? = null,
+    lastNotified: Instant? = null,
+    createdOn: Instant? = null
 ): User {
     var user = db.users.find {
         // a nice approach with infix notation for DSLs with "eq" expression

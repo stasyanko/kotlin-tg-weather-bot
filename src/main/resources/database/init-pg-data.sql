@@ -1,6 +1,6 @@
-CREATE TABLE [IF NOT EXISTS] user (
+CREATE TABLE IF NOT EXISTS public.user (
     id serial PRIMARY KEY,
-    userId VARCHAR (150) UNIQUE NOT NULL,
+    userName VARCHAR (150) UNIQUE NOT NULL,
     weather_action_id INT,
     lat DECIMAL,
     lng DECIMAL,
