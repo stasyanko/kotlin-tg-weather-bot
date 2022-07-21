@@ -82,7 +82,8 @@ fun main() {
                     chatSteps[chatId].let { stepNumber ->
                         when (stepNumber) {
                             StepEnum.WEATHER -> {
-                                val weatherEnumVal = msgText?.let { msg -> WeatherEnum.fromLabel(msg) }
+                                //TODO: add a null check
+                                val weatherEnumVal = msgText.let { msg -> WeatherEnum.fromLabel(msg) }
                                 if(weatherEnumVal == null) {
                                     chatSteps[chatId] = StepEnum.WEATHER
                                     bot.execute(
