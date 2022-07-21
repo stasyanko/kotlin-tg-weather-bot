@@ -3,6 +3,7 @@ package com.weather_bot
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Update
+import com.pengrad.telegrambot.request.SendMessage
 import com.weather_bot.database.PgDatabase
 import com.weather_bot.database.User
 import com.weather_bot.database.users
@@ -14,6 +15,7 @@ import org.ktorm.entity.find
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.*
+
 
 typealias chatId = Long
 typealias stepNumber = Int
@@ -39,13 +41,7 @@ fun main() {
     bot.setUpdatesListener { updates: List<Update?>? ->
         updates?.forEach { it ->
             val chatId: Long? = it?.message()?.chat()?.id()
-            val chatStep = chatSteps[chatId].let { stepNumber ->
-                if(stepNumber === null) {
-                    chatSteps[chatId] = StepEnum.WEATHER_ACTIONS
-                }
-
-                chatSteps[chatId]
-            }
+            val msgText: String? = it?.message()?.text()
 
             upsertUser(
                 db = db,
@@ -53,18 +49,28 @@ fun main() {
                 createdOn = Instant.now()
             )
 
-            when(chatStep) {
-                StepEnum.WEATHER_ACTIONS -> {
-                    println("WEATHER_ACTIONS")
+            when(msgText) {
+                "/start" -> {
+                    chatSteps[chatId] = StepEnum.WEATHER_ACTIONS
+                    bot.execute(SendMessage(chatId, "Hello!"))
                 }
-                StepEnum.LOCATION -> {
-                    println("LOCATION")
-                }
-                StepEnum.TIME -> {
-                    println("TIME")
-                }
-                null -> {
-                    println("empty step")
+                else -> {
+                    chatSteps[chatId].let { stepNumber ->
+                        when (stepNumber) {
+                            StepEnum.WEATHER_ACTIONS -> {
+                                println("WEATHER_ACTIONS")
+                            }
+                            StepEnum.LOCATION -> {
+                                println("LOCATION")
+                            }
+                            StepEnum.TIME -> {
+                                println("TIME")
+                            }
+                            null -> {
+                                println("empty step")
+                            }
+                        }
+                    }
                 }
             }
         }
