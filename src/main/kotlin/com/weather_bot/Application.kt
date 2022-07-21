@@ -90,6 +90,7 @@ fun main() {
                                         SendMessage(chatId, "Invalid value for weather: $msgText")
                                     )
                                     weatherStepKeyboard(bot, chatId)
+                                    // return to the label let
                                     return@let
                                 }
                                 upsertUser(
