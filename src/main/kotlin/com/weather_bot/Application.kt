@@ -45,6 +45,7 @@ enum class WeatherEnum(
 
     companion object {
         fun labels() = values().map { it.toString() }
+        fun fromLabel(label: String): WeatherEnum? = WeatherEnum.values().find { it.name == label }
     }
 }
 
@@ -63,28 +64,42 @@ fun main() {
     bot.setUpdatesListener { updates: List<Update?>? ->
         updates?.forEach { it ->
             val chatId: Long? = it?.message()?.chat()?.id()
+            val userId = chatId.toString()
             val msgText: String? = it?.message()?.text()
 
             upsertUser(
                 db = db,
-                userId = chatId.toString(),
+                userId = userId,
                 createdOn = Instant.now()
             )
 
             when(msgText) {
                 "/start" -> {
                     chatSteps[chatId] = StepEnum.WEATHER
-
-                    val buttons = WeatherEnum.labels().map { KeyboardButton(it) }.toTypedArray()
-                    bot.execute(SendMessage(chatId, "Please, select a weather condition").replyMarkup(
-                        ReplyKeyboardMarkup(buttons)
-                    ))
+                    weatherStepKeyboard(bot, chatId)
                 }
                 else -> {
                     chatSteps[chatId].let { stepNumber ->
                         when (stepNumber) {
                             StepEnum.WEATHER -> {
-                                println("WEATHER")
+                                val weatherEnumVal = msgText?.let { msg -> WeatherEnum.fromLabel(msg) }
+                                if(weatherEnumVal == null) {
+                                    chatSteps[chatId] = StepEnum.WEATHER
+                                    bot.execute(
+                                        SendMessage(chatId, "Invalid value for weather: $msgText")
+                                    )
+                                    weatherStepKeyboard(bot, chatId)
+                                    return@let
+                                }
+                                upsertUser(
+                                    db,
+                                    userId,
+                                    weatherActionId = weatherEnumVal?.id
+                                )
+                                chatSteps[chatId] = StepEnum.LOCATION
+                                bot.execute(
+                                    SendMessage(chatId, "Please provide your location")
+                                )
                             }
                             StepEnum.LOCATION -> {
                                 println("LOCATION")
@@ -103,6 +118,13 @@ fun main() {
 
         UpdatesListener.CONFIRMED_UPDATES_ALL
     }
+}
+
+private fun weatherStepKeyboard(bot: TelegramBot, chatId: Long?) {
+    val weatherButtons = WeatherEnum.labels().map { KeyboardButton(it) }.toTypedArray()
+    bot.execute(SendMessage(chatId, "Please, select a weather condition").replyMarkup(
+        ReplyKeyboardMarkup(weatherButtons)
+    ))
 }
 
 private fun upsertUser(
