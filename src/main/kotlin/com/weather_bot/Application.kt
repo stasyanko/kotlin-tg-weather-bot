@@ -3,6 +3,8 @@ package com.weather_bot
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Update
+import com.pengrad.telegrambot.model.request.KeyboardButton
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
 import com.pengrad.telegrambot.request.SendMessage
 import com.weather_bot.database.PgDatabase
 import com.weather_bot.database.User
@@ -16,14 +18,34 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.util.*
 
-
 typealias chatId = Long
 typealias stepNumber = Int
 
 enum class StepEnum(val value: stepNumber) {
-    WEATHER_ACTIONS(1),
+    WEATHER(1),
     LOCATION(2),
     TIME(3),
+}
+
+enum class SkyConditionEnum(val value: Int) {
+    RAIN(1),
+    SNOW(2),
+}
+
+enum class WeatherEnum(
+    val id: Int,
+    val tempFrom: Int?,
+    val tempTo: Int?,
+    val skyCondition: SkyConditionEnum?
+) {
+    HOT(1, 25, 80, null),
+    COLD(2, -70, -10, null),
+    RAIN(3, null, null, SkyConditionEnum.RAIN),
+    SNOW(4, null, null, SkyConditionEnum.SNOW);
+
+    companion object {
+        fun labels() = values().map { it.toString() }
+    }
 }
 
 private const val INIT_SCRIPT = "database/init-pg-data.sql"
@@ -51,14 +73,18 @@ fun main() {
 
             when(msgText) {
                 "/start" -> {
-                    chatSteps[chatId] = StepEnum.WEATHER_ACTIONS
-                    bot.execute(SendMessage(chatId, "Hello!"))
+                    chatSteps[chatId] = StepEnum.WEATHER
+
+                    val buttons = WeatherEnum.labels().map { KeyboardButton(it) }.toTypedArray()
+                    bot.execute(SendMessage(chatId, "Please, select a weather condition").replyMarkup(
+                        ReplyKeyboardMarkup(buttons)
+                    ))
                 }
                 else -> {
                     chatSteps[chatId].let { stepNumber ->
                         when (stepNumber) {
-                            StepEnum.WEATHER_ACTIONS -> {
-                                println("WEATHER_ACTIONS")
+                            StepEnum.WEATHER -> {
+                                println("WEATHER")
                             }
                             StepEnum.LOCATION -> {
                                 println("LOCATION")
