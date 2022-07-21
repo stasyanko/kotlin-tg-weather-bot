@@ -29,5 +29,5 @@ object Users : Table<User>("user") {
     val lastNotified = timestamp("last_notified").bindTo { it.lastNotified }
     val createdOn = timestamp("created_on").bindTo { it.createdOn }
 }
-
+// an example of function extension
 val Database.users get() = this.sequenceOf(Users)

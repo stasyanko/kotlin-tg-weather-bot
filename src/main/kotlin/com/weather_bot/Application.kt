@@ -78,7 +78,7 @@ private fun upsertUser(
     createdOn: Instant?
 ): User {
     var user = db.users.find {
-        // a nice approach for DSLs with "eq" expression
+        // a nice approach with infix notation for DSLs with "eq" expression
         it.username eq userId
     }
 
