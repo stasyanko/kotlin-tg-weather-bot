@@ -83,7 +83,7 @@ fun main() {
                         when (stepNumber) {
                             StepEnum.WEATHER -> {
                                 //TODO: add a null check
-                                val weatherEnumVal = msgText.let { msg -> WeatherEnum.fromLabel(msg) }
+                                val weatherEnumVal = msgText?.let { msg -> WeatherEnum.fromLabel(msg) }
                                 if(weatherEnumVal == null) {
                                     chatSteps[chatId] = StepEnum.WEATHER
                                     bot.execute(
@@ -104,7 +104,29 @@ fun main() {
                                 )
                             }
                             StepEnum.LOCATION -> {
-                                println("LOCATION")
+                                val locationValue = msgText ?: ""
+                                val locationRegex = "^(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?)".toRegex()
+                                // can it be more readable???
+                                if(!(locationValue matches locationRegex)) {
+                                    bot.execute(
+                                        SendMessage(chatId, "Please provide valid location")
+                                    )
+                                    return@let
+                                }
+
+                                val (lat, lng) = locationValue.split(",").toList()
+                                upsertUser(
+                                    db,
+                                    userId,
+                                    lat = lat.toBigDecimal(),
+                                    lng = lng.toBigDecimal(),
+                                )
+                                bot.execute(
+                                    SendMessage(
+                                        chatId,
+                                        "Please provide an hour for sending a notification (UTC)"
+                                    )
+                                )
                             }
                             StepEnum.TIME -> {
                                 println("TIME")
