@@ -118,9 +118,10 @@ fun main() {
                                 upsertUser(
                                     db,
                                     userId,
-                                    lat = lat.toBigDecimal(),
-                                    lng = lng.toBigDecimal(),
+                                    lat = lat.trim().toBigDecimal(),
+                                    lng = lng.trim().toBigDecimal(),
                                 )
+                                chatSteps[chatId] = StepEnum.TIME
                                 bot.execute(
                                     SendMessage(
                                         chatId,
@@ -129,7 +130,34 @@ fun main() {
                                 )
                             }
                             StepEnum.TIME -> {
-                                println("TIME")
+                                val notifyAtHour = msgText?.toIntOrNull()
+                                if(notifyAtHour == null) {
+                                    bot.execute(
+                                        SendMessage(chatId, "A value for hour must be numeric")
+                                    )
+                                    return@let
+                                }
+                                if(notifyAtHour !in 0..23) {
+                                    bot.execute(
+                                        SendMessage(
+                                            chatId,
+                                            "A value for hour must be between 0 and 23"
+                                        )
+                                    )
+                                    return@let
+                                }
+
+                                upsertUser(
+                                    db,
+                                    userId,
+                                    notifyAtHour = notifyAtHour
+                                )
+                                bot.execute(
+                                    SendMessage(
+                                        chatId,
+                                        "Well done! You will receive notifications for the selected weather!"
+                                    )
+                                )
                             }
                             null -> {
                                 println("empty step")
