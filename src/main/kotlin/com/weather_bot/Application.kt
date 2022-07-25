@@ -10,12 +10,19 @@ import com.weather_bot.database.PgDatabase
 import com.weather_bot.database.User
 import com.weather_bot.database.users
 import io.github.cdimascio.dotenv.Dotenv
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.ktorm.database.Database
-import org.ktorm.dsl.eq
+import org.ktorm.dsl.*
 import org.ktorm.entity.add
+import org.ktorm.entity.filter
 import org.ktorm.entity.find
+import org.ktorm.entity.toList
 import java.math.BigDecimal
 import java.time.Instant
+import java.time.Period
+import java.time.ZoneOffset
 import java.util.*
 
 typealias chatId = Long
@@ -60,7 +67,7 @@ fun main() {
 
     val bot = TelegramBot(dotenv["TG_BOT_TOKEN"])
     val chatSteps = Collections.synchronizedMap(mutableMapOf<chatId, StepEnum>())
-
+    //TODO: move it to a runBot() function
     bot.setUpdatesListener { updates: List<Update?>? ->
         updates?.forEach { it ->
             val chatId: Long? = it?.message()?.chat()?.id()
@@ -167,6 +174,26 @@ fun main() {
 
         UpdatesListener.CONFIRMED_UPDATES_ALL
     }
+    //TODO: say why Timer in jvm is better than crontab
+    Timer().scheduleAtFixedRate(object : TimerTask() {
+        private val coroutineScope = CoroutineScope(Dispatchers.Default)
+
+        override fun run() {
+            coroutineScope.launch {
+                //1. Get all users for checking weather
+                //2. Pass them to WeatherChecker
+                //3. Send a notification if needed
+                val curTime = Instant.now().atZone(ZoneOffset.UTC)
+                val curHourUtc = curTime.hour
+                val dayAgoTime = Instant.from(curTime).minus(Period.ofDays(1))
+                val users = db.users.filter {
+                    (it.notifyAtHour eq curHourUtc) and
+                    (it.lastNotified.isNull() or (it.lastNotified lt dayAgoTime))
+                }.toList()
+                println(users)
+            }
+        }
+    }, 0,1000)
 }
 
 private fun weatherStepKeyboard(bot: TelegramBot, chatId: Long?) {
