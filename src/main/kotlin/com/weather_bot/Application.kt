@@ -160,9 +160,7 @@ fun main() {
                                     )
                                 )
                             }
-                            null -> {
-                                println("empty step")
-                            }
+                            //TODO: add the null branch here
                         }
                     }
                 }
