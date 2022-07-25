@@ -137,7 +137,8 @@ fun main() {
                                     )
                                     return@let
                                 }
-                                if(notifyAtHour !in 0..23) {
+                                //TODO: replace it with !in 0..23
+                                if(!(notifyAtHour >= 0 && notifyAtHour <= 23)) {
                                     bot.execute(
                                         SendMessage(
                                             chatId,
