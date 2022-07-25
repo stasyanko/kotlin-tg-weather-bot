@@ -90,8 +90,8 @@ fun main() {
                                         SendMessage(chatId, "Invalid value for weather: $msgText")
                                     )
                                     weatherStepKeyboard(bot, chatId)
-                                    // return to the label let
-                                    return@let
+                                    //TODO: return to the label @let
+                                    return
                                 }
                                 upsertUser(
                                     db,
@@ -106,8 +106,8 @@ fun main() {
                             StepEnum.LOCATION -> {
                                 val locationValue = msgText ?: ""
                                 val locationRegex = "^(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?)".toRegex()
-                                // can it be more readable???
-                                if(!(locationValue matches locationRegex)) {
+                                //TODO: replace it with the matches infix function: locationValue matches locationRegex
+                                if(!(locationValue.matches(locationRegex))) {
                                     bot.execute(
                                         SendMessage(chatId, "Please provide valid location")
                                     )
