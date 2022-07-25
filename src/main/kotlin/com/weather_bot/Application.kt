@@ -82,21 +82,19 @@ fun main() {
                     chatSteps[chatId].let { stepNumber ->
                         when (stepNumber) {
                             StepEnum.WEATHER -> {
-                                //TODO: add a null check
-                                val weatherEnumVal = msgText.let { msg -> WeatherEnum.fromLabel(msg) }
+                                val weatherEnumVal = msgText?.let { msg -> WeatherEnum.fromLabel(msg) }
                                 if(weatherEnumVal == null) {
                                     chatSteps[chatId] = StepEnum.WEATHER
                                     bot.execute(
                                         SendMessage(chatId, "Invalid value for weather: $msgText")
                                     )
                                     weatherStepKeyboard(bot, chatId)
-                                    //TODO: return to the label @let
-                                    return
+                                    return@let
                                 }
                                 upsertUser(
                                     db,
                                     userId,
-                                    weatherActionId = weatherEnumVal?.id
+                                    weatherActionId = weatherEnumVal.id
                                 )
                                 chatSteps[chatId] = StepEnum.LOCATION
                                 bot.execute(
@@ -106,8 +104,7 @@ fun main() {
                             StepEnum.LOCATION -> {
                                 val locationValue = msgText ?: ""
                                 val locationRegex = "^(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?)".toRegex()
-                                //TODO: replace it with the matches infix function: locationValue matches locationRegex
-                                if(!(locationValue.matches(locationRegex))) {
+                                if(!(locationValue matches locationRegex)) {
                                     bot.execute(
                                         SendMessage(chatId, "Please provide valid location")
                                     )
@@ -129,8 +126,39 @@ fun main() {
                                     )
                                 )
                             }
-                            //TODO: add the TIME branch here
-                            //TODO: add the null branch here
+                            StepEnum.TIME -> {
+                                val notifyAtHour = msgText?.toIntOrNull()
+                                if(notifyAtHour == null) {
+                                    bot.execute(
+                                        SendMessage(chatId, "A value for hour must be numeric")
+                                    )
+                                    return@let
+                                }
+                                if(notifyAtHour !in 0..23) {
+                                    bot.execute(
+                                        SendMessage(
+                                            chatId,
+                                            "A value for hour must be between 0 and 23"
+                                        )
+                                    )
+                                    return@let
+                                }
+
+                                upsertUser(
+                                    db,
+                                    userId,
+                                    notifyAtHour = notifyAtHour
+                                )
+                                bot.execute(
+                                    SendMessage(
+                                        chatId,
+                                        "Well done! You will receive notifications for the selected weather!"
+                                    )
+                                )
+                            }
+                            null -> {
+                                println("empty step")
+                            }
                         }
                     }
                 }
