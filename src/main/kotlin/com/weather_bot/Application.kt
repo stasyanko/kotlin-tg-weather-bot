@@ -129,37 +129,7 @@ fun main() {
                                     )
                                 )
                             }
-                            StepEnum.TIME -> {
-                                val notifyAtHour = msgText?.toIntOrNull()
-                                if(notifyAtHour == null) {
-                                    bot.execute(
-                                        SendMessage(chatId, "A value for hour must be numeric")
-                                    )
-                                    return@let
-                                }
-                                //TODO: replace it with !in 0..23
-                                if(!(notifyAtHour >= 0 && notifyAtHour <= 23)) {
-                                    bot.execute(
-                                        SendMessage(
-                                            chatId,
-                                            "A value for hour must be between 0 and 23"
-                                        )
-                                    )
-                                    return@let
-                                }
-
-                                upsertUser(
-                                    db,
-                                    userId,
-                                    notifyAtHour = notifyAtHour
-                                )
-                                bot.execute(
-                                    SendMessage(
-                                        chatId,
-                                        "Well done! You will receive notifications for the selected weather!"
-                                    )
-                                )
-                            }
+                            //TODO: add the TIME branch here
                             //TODO: add the null branch here
                         }
                     }
