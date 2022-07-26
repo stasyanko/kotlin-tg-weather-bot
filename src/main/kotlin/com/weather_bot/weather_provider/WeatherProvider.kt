@@ -40,6 +40,12 @@ class WeatherProviderAdapter(private val openWeatherMapApi: OpenWeatherMapApi): 
             in 600..622 -> {
                 SkyConditionEnum.SNOW
             }
+            800 -> {
+                SkyConditionEnum.CLEAR
+            }
+            in 801..804 -> {
+                SkyConditionEnum.CLOUDY
+            }
             else -> null
         }
     }

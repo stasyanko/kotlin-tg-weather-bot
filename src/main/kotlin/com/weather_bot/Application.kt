@@ -9,7 +9,11 @@ import com.pengrad.telegrambot.request.SendMessage
 import com.weather_bot.database.PgDatabase
 import com.weather_bot.database.User
 import com.weather_bot.database.users
+import com.weather_bot.weather_provider.OpenWeatherMapApi
+import com.weather_bot.weather_provider.WeatherProviderAdapter
 import io.github.cdimascio.dotenv.Dotenv
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +41,8 @@ enum class StepEnum(val value: stepNumber) {
 enum class SkyConditionEnum(val value: Int) {
     RAIN(1),
     SNOW(2),
+    CLOUDY(3),
+    CLEAR(4),
 }
 
 enum class WeatherEnum(
@@ -174,26 +180,31 @@ fun main() {
 
         UpdatesListener.CONFIRMED_UPDATES_ALL
     }
+
+
+
     //TODO: say why Timer in jvm is better than crontab
     Timer().scheduleAtFixedRate(object : TimerTask() {
         private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
         override fun run() {
+            //1. Get all users for checking weather
+            //2. Pass them to WeatherChecker
+            //3. Send a notification if needed
+            val curTime = Instant.now().atZone(ZoneOffset.UTC)
+            val curHourUtc = curTime.hour
+            val dayAgoTime = Instant.from(curTime).minus(Period.ofDays(1))
+            val users = db.users.filter {
+                (it.notifyAtHour eq curHourUtc) and
+                (it.lastNotified.isNull() or (it.lastNotified lt dayAgoTime))
+            }.toList()
             coroutineScope.launch {
-                //1. Get all users for checking weather
-                //2. Pass them to WeatherChecker
-                //3. Send a notification if needed
-                val curTime = Instant.now().atZone(ZoneOffset.UTC)
-                val curHourUtc = curTime.hour
-                val dayAgoTime = Instant.from(curTime).minus(Period.ofDays(1))
-                val users = db.users.filter {
-                    (it.notifyAtHour eq curHourUtc) and
-                    (it.lastNotified.isNull() or (it.lastNotified lt dayAgoTime))
-                }.toList()
-                println(users)
+//                users.forEach { user ->
+//
+//                }
             }
         }
-    }, 0,1000)
+    }, 0,3000)
 }
 
 private fun weatherStepKeyboard(bot: TelegramBot, chatId: Long?) {
