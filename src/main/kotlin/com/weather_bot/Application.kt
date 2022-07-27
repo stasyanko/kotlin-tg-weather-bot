@@ -245,7 +245,7 @@ fun main() {
                 }
             }
         }
-    }, 0,3000)
+    }, 0,60000)
 }
 
 private fun weatherStepKeyboard(bot: TelegramBot, chatId: Long?) {
