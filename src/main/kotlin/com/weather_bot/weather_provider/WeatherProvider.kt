@@ -16,7 +16,10 @@ interface IWeatherProvider {
 }
 
 class WeatherProviderAdapter(private val openWeatherMapApi: OpenWeatherMapApi): IWeatherProvider {
-    override suspend fun threeDayForecast(lat: BigDecimal, lon: BigDecimal): Either<Error, List<WeatherItem>> {
+    override suspend fun threeDayForecast(
+        lat: BigDecimal,
+        lon: BigDecimal
+    ): Either<Error, List<WeatherItem>> {
         val threeDayForecast = mutableListOf<WeatherItem>()
         return try {
             val fiveDayForecast = openWeatherMapApi.fiveDayForecast(lat, lon)
