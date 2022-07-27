@@ -39,7 +39,7 @@ class WeatherChecker(
     ): Boolean {
         var tempMatches = false
         var skyMatches = false
-
+        //TODO: refactor to when without argument and make temp not nullable with range from -273 to 60
         if(
             (weatherFromUser.tempFrom == null &&
                     weatherFromUser.tempTo == null) ||
