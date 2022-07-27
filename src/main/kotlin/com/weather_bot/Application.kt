@@ -207,6 +207,7 @@ fun main() {
 
             users.forEach { user ->
                 coroutineScope.launch {
+                    println("started checking for a user " + user.userId)
                     if(
                         user.lat !== null &&
                         user.lng !== null &&
@@ -226,7 +227,8 @@ fun main() {
                                     matchesOnDay.value?.let { dateTime ->
                                         bot.execute(
                                             SendMessage(
-                                                chatId,
+                                                user.userId,
+                                                //TODO: make a DSL for an HTML message
                                                 "It's gonna be $weather on $dateTime"
                                             )
                                         )

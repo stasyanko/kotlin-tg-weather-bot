@@ -24,7 +24,7 @@ class WeatherChecker(
                 val weatherForThreeDays = weatherData.value
                 for (weatherItem in weatherForThreeDays) {
                     if(matches(weatherFromUser, weatherItem)) {
-                        Either.Right(weatherItem.dateTime)
+                        return Either.Right(weatherItem.dateTime)
                     }
                 }
 
