@@ -1,11 +1,13 @@
 package com.weather_bot
 
+import arrow.core.Either
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.model.request.KeyboardButton
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
 import com.pengrad.telegrambot.request.SendMessage
+import com.weather_bot.checker.WeatherChecker
 import com.weather_bot.database.PgDatabase
 import com.weather_bot.database.User
 import com.weather_bot.database.users
@@ -58,6 +60,7 @@ enum class WeatherEnum(
 
     companion object {
         fun labels() = values().map { it.toString() }
+        fun fromId(id: Int): WeatherEnum? = WeatherEnum.values().find { it.id == id }
         fun fromLabel(label: String): WeatherEnum? = WeatherEnum.values().find { it.name == label }
     }
 }
@@ -181,16 +184,19 @@ fun main() {
         UpdatesListener.CONFIRMED_UPDATES_ALL
     }
 
-
+    val weatherProvider = WeatherProviderAdapter(
+        OpenWeatherMapApi(
+            HttpClient(CIO),
+            dotenv["OWM_APP_ID"]
+        )
+    )
+    val weatherChecker = WeatherChecker(weatherProvider)
 
     //TODO: say why Timer in jvm is better than crontab
     Timer().scheduleAtFixedRate(object : TimerTask() {
         private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
         override fun run() {
-            //1. Get all users for checking weather
-            //2. Pass them to WeatherChecker
-            //3. Send a notification if needed
             val curTime = Instant.now().atZone(ZoneOffset.UTC)
             val curHourUtc = curTime.hour
             val dayAgoTime = Instant.from(curTime).minus(Period.ofDays(1))
@@ -198,10 +204,43 @@ fun main() {
                 (it.notifyAtHour eq curHourUtc) and
                 (it.lastNotified.isNull() or (it.lastNotified lt dayAgoTime))
             }.toList()
-            coroutineScope.launch {
-//                users.forEach { user ->
-//
-//                }
+
+            users.forEach { user ->
+                coroutineScope.launch {
+                    if(
+                        user.lat !== null &&
+                        user.lng !== null &&
+                        user.weatherActionId !== null
+                    ) {
+                        WeatherEnum.fromId(user.weatherActionId!!)?.let { weather ->
+                            val matchesOnDay = weatherChecker.matchesOnDay(
+                                user.lat!!,
+                                user.lng!!,
+                                weather
+                            )
+                            when(matchesOnDay) {
+                                is Either.Left -> {
+                                    println("Error: " + matchesOnDay.value)
+                                }
+                                is Either.Right -> {
+                                    matchesOnDay.value?.let { dateTime ->
+                                        bot.execute(
+                                            SendMessage(
+                                                chatId,
+                                                "It's gonna be $weather on $dateTime"
+                                            )
+                                        )
+                                        upsertUser(
+                                            db,
+                                            user.userId,
+                                            lastNotified = Instant.now()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }, 0,3000)
