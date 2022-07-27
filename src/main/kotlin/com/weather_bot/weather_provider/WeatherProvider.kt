@@ -1,5 +1,6 @@
 package com.weather_bot.weather_provider
 
+import arrow.core.Either
 import com.weather_bot.SkyConditionEnum
 import java.math.BigDecimal
 import java.time.Instant
@@ -11,21 +12,25 @@ data class WeatherItem(
 )
 
 interface IWeatherProvider {
-    suspend fun threeDayForecast(lat: BigDecimal, lon: BigDecimal): List<WeatherItem>
+    suspend fun threeDayForecast(lat: BigDecimal, lon: BigDecimal): Either<Error, List<WeatherItem>>
 }
 
 class WeatherProviderAdapter(private val openWeatherMapApi: OpenWeatherMapApi): IWeatherProvider {
-    override suspend fun threeDayForecast(lat: BigDecimal, lon: BigDecimal): List<WeatherItem> {
+    override suspend fun threeDayForecast(lat: BigDecimal, lon: BigDecimal): Either<Error, List<WeatherItem>> {
         val threeDayForecast = mutableListOf<WeatherItem>()
-        val fiveDayForecast = openWeatherMapApi.fiveDayForecast(lat, lon)
-        for (threeHourForecast in fiveDayForecast) {
-            threeDayForecast.add(WeatherItem(
-                Instant.ofEpochSecond(threeHourForecast.dateTimeUnix.toLong()),
-                threeHourForecast.temp,
-                threeHourForecast.skyCondCodes.mapNotNull { mapSkyCondition(it) },
-            ))
+        return try {
+            val fiveDayForecast = openWeatherMapApi.fiveDayForecast(lat, lon)
+            for (threeHourForecast in fiveDayForecast) {
+                threeDayForecast.add(WeatherItem(
+                    Instant.ofEpochSecond(threeHourForecast.dateTimeUnix.toLong()),
+                    threeHourForecast.temp,
+                    threeHourForecast.skyCondCodes.mapNotNull { mapSkyCondition(it) },
+                ))
+            }
+            Either.Right(threeDayForecast)
+        } catch (e: Exception) {
+            Either.Left(Error())
         }
-        return threeDayForecast
     }
 
     private fun mapSkyCondition(openWeatherMapSkyCondition: Int): SkyConditionEnum? {
