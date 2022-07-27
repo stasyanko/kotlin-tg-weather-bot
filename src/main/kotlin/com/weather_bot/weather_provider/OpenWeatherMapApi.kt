@@ -18,6 +18,11 @@ data class ThreeHourWeatherItem(
     val windSpeed: Double,
 )
 
+class AuthException : Exception() {}
+class GeoException : Exception() {}
+class SubscriptionException : Exception() {}
+class ServerErrorException : Exception() {}
+
 class OpenWeatherMapApi(
     private val httpClient: HttpClient,
     private val appId: String,
@@ -26,10 +31,25 @@ class OpenWeatherMapApi(
         val res = httpClient.get(
             "https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${appId}&units=metric"
         )
-        if(res.status != HttpStatusCode.OK) {
-            println(res.status)
-            throw Exception("An error occurred");
+
+        res.status.let {
+            when(it.value) {
+                HttpStatusCode.Unauthorized.value -> {
+                    throw AuthException();
+                }
+                HttpStatusCode.NotFound.value -> {
+                    throw GeoException();
+                }
+                HttpStatusCode.TooManyRequests.value -> {
+                    throw SubscriptionException();
+                }
+                in 500..504 -> {
+                    throw ServerErrorException();
+                }
+                else -> {}
+            }
         }
+
         val fiveDaysWeather = JSONObject(res.bodyAsText()).get("list") as JSONArray
 
         val result = mutableListOf<ThreeHourWeatherItem>()

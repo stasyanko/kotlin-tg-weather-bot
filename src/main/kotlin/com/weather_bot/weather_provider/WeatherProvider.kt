@@ -32,6 +32,8 @@ class WeatherProviderAdapter(private val openWeatherMapApi: OpenWeatherMapApi): 
             }
             Either.Right(threeDayForecast)
         } catch (e: Exception) {
+            //TODO: create sealed classes for WeatherProviderAdapter errors and map
+            //TODO: exceptions to them
             Either.Left(Error(e.message))
         }
     }
