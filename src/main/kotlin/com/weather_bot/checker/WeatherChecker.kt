@@ -35,29 +35,7 @@ class WeatherChecker(
 
     private fun matches(
         weatherFromUser: WeatherEnum,
-          var tempMatches = false
-        var skyMatches = false
-
-        if(
-            (weatherFromUser.tempFrom == null &&
-                    weatherFromUser.tempTo == null) ||
-            (weatherFromUser.tempFrom != null &&
-            weatherFromUser.tempTo != null &&
-            weatherFromProvider.temp.toInt() in weatherFromUser.tempFrom..weatherFromUser.tempTo)
-        ) {
-            tempMatches = true
-        }      weathe        var tempMatches = false
-        var skyMatches = false
-
-        if(
-            (weatherFromUser.tempFrom == null &&
-                    weatherFromUser.tempTo == null) ||
-            (weatherFromUser.tempFrom != null &&
-            weatherFromUser.tempTo != null &&
-            weatherFromProvider.temp.toInt() in weatherFromUser.tempFrom..weatherFromUser.tempTo)
-        ) {
-            tempMatches = true
-        }rFromProvider: WeatherItem
+        weatherFromProvider: WeatherItem
     ): Boolean {
         var tempMatches = false
         var skyMatches = false
