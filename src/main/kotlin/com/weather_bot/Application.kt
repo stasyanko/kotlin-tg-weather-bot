@@ -228,7 +228,6 @@ fun main() {
                                         bot.execute(
                                             SendMessage(
                                                 user.userId,
-                                                //TODO: make a DSL for an HTML message
                                                 "It's gonna be $weather on $dateTime"
                                             )
                                         )
