@@ -31,7 +31,7 @@ enum class SkyConditionEnum(val value: Int) {
     RAIN(1),
     SNOW(2),
 }
-
+// kotlin allows multiple fields for a enum item
 enum class WeatherEnum(
     val id: Int,
     val tempFrom: Int?,
