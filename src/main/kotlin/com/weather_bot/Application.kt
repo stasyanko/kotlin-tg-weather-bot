@@ -40,10 +40,7 @@ fun main() {
                 StepEnum.LOCATION -> {
                     println("LOCATION")
                 }
-                //TODO: uncomment this to compile successfully
-//                StepEnum.TIME -> {
-//                    println("TIME")
-//                }
+                //TODO: add time step
             }
         }
 
