@@ -14,7 +14,7 @@ class WeatherChecker(
         lat: BigDecimal,
         lon: BigDecimal,
         weatherFromUser: WeatherEnum
-    //TODO: replace Instant? with Option
+    //TODO: replace Instant? with Option + show the variance with Null Object pattern
     ): Either<Error, Instant?> {
         val weatherData = weatherProvider.threeDayForecast(lat, lon)
         return when(weatherData) {
