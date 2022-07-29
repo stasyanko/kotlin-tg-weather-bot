@@ -11,6 +11,7 @@ class WeatherChecker(
     private val weatherProvider: WeatherProviderAdapter
 ) {
     suspend fun matchesOnDay(
+        //TODO: refactor lat and lon to value classes
         lat: BigDecimal,
         lon: BigDecimal,
         weatherFromUser: WeatherEnum
