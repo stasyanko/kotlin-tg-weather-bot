@@ -16,8 +16,8 @@ interface IWeatherProvider {
 }
 
 sealed class WeatherCheckError {
-    class AuthError(val reason: String) : WeatherCheckError()
-    class GeoError(val userId: String): WeatherCheckError()
+    data class AuthError(val reason: String) : WeatherCheckError()
+    data class GeoError(val userId: String): WeatherCheckError()
     object SubscriptionError: WeatherCheckError()
     object NetworkError: WeatherCheckError()
     object ServerError: WeatherCheckError()

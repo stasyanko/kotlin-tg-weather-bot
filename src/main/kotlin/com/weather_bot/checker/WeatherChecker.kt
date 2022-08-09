@@ -9,7 +9,7 @@ import java.math.BigDecimal
 import java.time.Instant
 
 sealed class MatchedInstant {
-    class NotEmptyInstant(val instant: Instant): MatchedInstant()
+    data class NotEmptyInstant(val instant: Instant): MatchedInstant()
     object EmptyInstant: MatchedInstant()
 }
 
@@ -22,7 +22,6 @@ class WeatherChecker(
     private val weatherProvider: WeatherProviderAdapter
 ) {
     suspend fun matchesOnDay(
-        //TODO: refactor lat and lon to value classes
         lat: Lat,
         lon: Lon,
         weatherFromUser: WeatherEnum
