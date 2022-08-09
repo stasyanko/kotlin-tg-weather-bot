@@ -29,6 +29,7 @@ dependencies {
     implementation("org.ktorm:ktorm-support-postgresql:${ktormVersion}")
     implementation("org.postgresql:postgresql:9.3-1100-jdbc4")
 
+    implementation("io.arrow-kt:arrow-core:1.1.2")
     implementation("com.github.pengrad:java-telegram-bot-api:6.1.0")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
