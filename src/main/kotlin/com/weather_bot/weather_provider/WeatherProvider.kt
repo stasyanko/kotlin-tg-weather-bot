@@ -12,14 +12,22 @@ data class WeatherItem(
 )
 
 interface IWeatherProvider {
-    suspend fun fiveDayForecast(lat: BigDecimal, lon: BigDecimal): Either<Error, List<WeatherItem>>
+    suspend fun fiveDayForecast(lat: BigDecimal, lon: BigDecimal): Either<WeatherCheckError, List<WeatherItem>>
+}
+
+sealed class WeatherCheckError {
+    class AuthError(val reason: String) : WeatherCheckError()
+    class GeoError(val userId: String): WeatherCheckError()
+    object SubscriptionError: WeatherCheckError()
+    object NetworkError: WeatherCheckError()
+    object ServerError: WeatherCheckError()
 }
 
 class WeatherProviderAdapter(private val openWeatherMapApi: OpenWeatherMapApi): IWeatherProvider {
     override suspend fun fiveDayForecast(
         lat: BigDecimal,
         lon: BigDecimal
-    ): Either<Error, List<WeatherItem>> {
+    ): Either<WeatherCheckError, List<WeatherItem>> {
         val resForecast = mutableListOf<WeatherItem>()
         return try {
             val fiveDayForecast = openWeatherMapApi.fiveDayForecast(lat, lon)
@@ -31,10 +39,14 @@ class WeatherProviderAdapter(private val openWeatherMapApi: OpenWeatherMapApi): 
                 ))
             }
             Either.Right(resForecast)
-        } catch (e: Exception) {
-            //TODO: create sealed classes for WeatherProviderAdapter errors and map
-            //TODO: exceptions to them
-            Either.Left(Error(e.message))
+        } catch (e: AuthException) {
+            Either.Left(WeatherCheckError.AuthError(e.message.let { it ?: "Auth error" }))
+        } catch (e: GeoException) {
+            Either.Left(WeatherCheckError.GeoError(e.message.let { it ?: "Auth error" }))
+        } catch (e: SubscriptionException) {
+            Either.Left(WeatherCheckError.SubscriptionError)
+        } catch (e: ServerErrorException) {
+            Either.Left(WeatherCheckError.ServerError)
         }
     }
 

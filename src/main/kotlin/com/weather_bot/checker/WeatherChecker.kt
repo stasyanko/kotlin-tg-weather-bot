@@ -2,23 +2,32 @@ package com.weather_bot.checker
 
 import arrow.core.Either
 import com.weather_bot.WeatherEnum
+import com.weather_bot.weather_provider.WeatherCheckError
 import com.weather_bot.weather_provider.WeatherItem
 import com.weather_bot.weather_provider.WeatherProviderAdapter
 import java.math.BigDecimal
 import java.time.Instant
+
+sealed class MatchedInstant {
+    class NotEmptyInstant(val instant: Instant): MatchedInstant()
+    object EmptyInstant: MatchedInstant()
+}
+
+@JvmInline
+value class Lat(val lat: BigDecimal)
+@JvmInline
+value class Lon(val lon: BigDecimal)
 
 class WeatherChecker(
     private val weatherProvider: WeatherProviderAdapter
 ) {
     suspend fun matchesOnDay(
         //TODO: refactor lat and lon to value classes
-        lat: BigDecimal,
-        lon: BigDecimal,
+        lat: Lat,
+        lon: Lon,
         weatherFromUser: WeatherEnum
-    //TODO: 1.Replace Instant? with Option
-    //TODO: 2.Replace with Null Object pattern with NotSetInstant and NullInstant
-    ): Either<Error, Instant?> {
-        val weatherData = weatherProvider.fiveDayForecast(lat, lon)
+    ): Either<WeatherCheckError, MatchedInstant> {
+        val weatherData = weatherProvider.fiveDayForecast(lat.lat, lon.lon)
         return when(weatherData) {
             is Either.Left -> {
                 Either.Left(weatherData.value)
@@ -27,11 +36,11 @@ class WeatherChecker(
                 val weatherForThreeDays = weatherData.value
                 for (weatherItem in weatherForThreeDays) {
                     if(matches(weatherFromUser, weatherItem)) {
-                        return Either.Right(weatherItem.dateTime)
+                        return Either.Right(MatchedInstant.NotEmptyInstant(weatherItem.dateTime))
                     }
                 }
 
-                Either.Right(null)
+                Either.Right(MatchedInstant.EmptyInstant)
             }
         }
     }

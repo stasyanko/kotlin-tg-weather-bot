@@ -1,17 +1,23 @@
 package com.weather_bot
 
 import arrow.core.Either
+import arrow.core.None
+import arrow.core.Some
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.model.request.KeyboardButton
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
 import com.pengrad.telegrambot.request.SendMessage
+import com.weather_bot.checker.Lat
+import com.weather_bot.checker.Lon
+import com.weather_bot.checker.MatchedInstant
 import com.weather_bot.checker.WeatherChecker
 import com.weather_bot.database.PgDatabase
 import com.weather_bot.database.User
 import com.weather_bot.database.users
 import com.weather_bot.weather_provider.OpenWeatherMapApi
+import com.weather_bot.weather_provider.WeatherCheckError
 import com.weather_bot.weather_provider.WeatherProviderAdapter
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.client.*
@@ -215,20 +221,38 @@ fun main() {
                     ) {
                         WeatherEnum.fromId(user.weatherActionId!!)?.let { weather ->
                             val matchesOnDay = weatherChecker.matchesOnDay(
-                                user.lat!!,
-                                user.lng!!,
+                                Lat( user.lat!!),
+                                Lon(user.lng!!),
                                 weather
                             )
                             when(matchesOnDay) {
-                                is Either.Left -> {
-                                    println("Error: " + matchesOnDay.value)
+                                is Either.Left -> when (matchesOnDay.value) {
+                                    is WeatherCheckError.AuthError -> {
+                                        println("AuthError " + matchesOnDay.value)
+                                    }
+                                    is WeatherCheckError.GeoError -> {
+                                        println("GeoError " + matchesOnDay.value)
+                                    }
+                                    is WeatherCheckError.SubscriptionError -> {
+                                        println("SubscriptionError " + matchesOnDay.value)
+                                    }
+                                    is WeatherCheckError.ServerError -> {
+                                        println("ServerError " + matchesOnDay.value)
+                                    }
+                                    is WeatherCheckError.NetworkError -> {
+                                        println("NetworkError " + matchesOnDay.value)
+                                    }
                                 }
-                                is Either.Right -> {
-                                    matchesOnDay.value?.let { dateTime ->
+
+                                is Either.Right -> when (matchesOnDay.value) {
+                                    is MatchedInstant.EmptyInstant -> {
+                                        println("weather not matched")
+                                    }
+                                    is MatchedInstant.NotEmptyInstant -> {
                                         bot.execute(
                                             SendMessage(
                                                 user.userId,
-                                                "It's gonna be $weather on $dateTime"
+                                                "It's gonna be $weather on " + matchesOnDay.value
                                             )
                                         )
                                         upsertUser(
