@@ -21,7 +21,7 @@ class WeatherChecker(
         val weatherData = weatherProvider.fiveDayForecast(lat, lon)
         return when(weatherData) {
             is Either.Left -> {
-                Either.Left(Error("could not fetch weather data"))
+                Either.Left(weatherData.value)
             }
             is Either.Right -> {
                 val weatherForThreeDays = weatherData.value
