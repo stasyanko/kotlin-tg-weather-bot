@@ -18,7 +18,7 @@ class WeatherChecker(
     //TODO: 1.Replace Instant? with Option
     //TODO: 2.Replace with Null Object pattern with NotSetInstant and NullInstant
     ): Either<Error, Instant?> {
-        val weatherData = weatherProvider.threeDayForecast(lat, lon)
+        val weatherData = weatherProvider.fiveDayForecast(lat, lon)
         return when(weatherData) {
             is Either.Left -> {
                 Either.Left(Error("could not fetch weather data"))

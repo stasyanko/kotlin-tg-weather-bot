@@ -12,25 +12,25 @@ data class WeatherItem(
 )
 
 interface IWeatherProvider {
-    suspend fun threeDayForecast(lat: BigDecimal, lon: BigDecimal): Either<Error, List<WeatherItem>>
+    suspend fun fiveDayForecast(lat: BigDecimal, lon: BigDecimal): Either<Error, List<WeatherItem>>
 }
 
 class WeatherProviderAdapter(private val openWeatherMapApi: OpenWeatherMapApi): IWeatherProvider {
-    override suspend fun threeDayForecast(
+    override suspend fun fiveDayForecast(
         lat: BigDecimal,
         lon: BigDecimal
     ): Either<Error, List<WeatherItem>> {
-        val threeDayForecast = mutableListOf<WeatherItem>()
+        val resForecast = mutableListOf<WeatherItem>()
         return try {
             val fiveDayForecast = openWeatherMapApi.fiveDayForecast(lat, lon)
             for (threeHourForecast in fiveDayForecast) {
-                threeDayForecast.add(WeatherItem(
+                resForecast.add(WeatherItem(
                     Instant.ofEpochSecond(threeHourForecast.dateTimeUnix.toLong()),
                     threeHourForecast.temp,
                     threeHourForecast.skyCondCodes.mapNotNull { mapSkyCondition(it) },
                 ))
             }
-            Either.Right(threeDayForecast)
+            Either.Right(resForecast)
         } catch (e: Exception) {
             //TODO: create sealed classes for WeatherProviderAdapter errors and map
             //TODO: exceptions to them
