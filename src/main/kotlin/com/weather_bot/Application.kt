@@ -34,7 +34,9 @@ import org.ktorm.entity.toList
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.Period
+import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 typealias chatId = Long
@@ -201,6 +203,10 @@ fun main() {
     //TODO: say why Timer in jvm is better than crontab
     Timer().scheduleAtFixedRate(object : TimerTask() {
         private val coroutineScope = CoroutineScope(Dispatchers.Default)
+        private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+            .withZone(ZoneId.of("UTC"))
+        private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            .withZone(ZoneId.of("UTC"))
 
         override fun run() {
             val curTime = Instant.now().atZone(ZoneOffset.UTC)
@@ -249,10 +255,14 @@ fun main() {
                                         println("weather not matched")
                                     }
                                     is MatchedInstant.NotEmptyInstant -> {
+                                        val dateTime = matchesOnDay.value as MatchedInstant.NotEmptyInstant
+                                        val formattedDate = dateFormatter.format(dateTime.instant)
+                                        val formattedTime = timeFormatter.format(dateTime.instant)
+
                                         bot.execute(
                                             SendMessage(
                                                 user.userId,
-                                                "It's gonna be $weather on " + matchesOnDay.value
+                                                "It's gonna be $weather on $formattedDate at $formattedTime"
                                             )
                                         )
                                         upsertUser(
