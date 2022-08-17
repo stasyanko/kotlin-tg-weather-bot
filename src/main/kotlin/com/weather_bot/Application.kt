@@ -197,7 +197,9 @@ fun main() {
     //TODO: say why Timer in jvm is better than crontab
     Timer().scheduleAtFixedRate(object : TimerTask() {
         private val coroutineScope = CoroutineScope(Dispatchers.Default)
-        private val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+            .withZone(ZoneId.of("UTC"))
+        private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             .withZone(ZoneId.of("UTC"))
 
         override fun run() {
@@ -229,11 +231,13 @@ fun main() {
                                 }
                                 is Either.Right -> {
                                     matchesOnDay.value?.let { dateTime ->
-                                        val formattedDate = formatter.format(dateTime)
+                                        val formattedDate = dateFormatter.format(dateTime)
+                                        val formattedTime = timeFormatter.format(dateTime)
+
                                         bot.execute(
                                             SendMessage(
                                                 user.userId,
-                                                "It's gonna be $weather on $formattedDate"
+                                                "It's gonna be $weather on $formattedDate at $formattedTime"
                                             )
                                         )
                                         upsertUser(
