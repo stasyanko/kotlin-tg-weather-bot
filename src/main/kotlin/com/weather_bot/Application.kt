@@ -1,8 +1,6 @@
 package com.weather_bot
 
 import arrow.core.Either
-import arrow.core.None
-import arrow.core.Some
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Update
